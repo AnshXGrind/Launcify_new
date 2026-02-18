@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Button from "./Button";
 
-type Props = { open: boolean; onClose(): void };
+type Props = { open: boolean; onClose(): void; initialAudience?: "startups" | "personal" | "saas" | "business" };
 
 const VALID_SIZES = ["1–10 employees", "11–50 employees", "51–200 employees", "200+ employees"];
 const VALID_BOTTLENECKS = [
@@ -14,13 +14,38 @@ const VALID_BOTTLENECKS = [
   "Compliance and documentation overhead",
 ];
 
-export default function EstimatorModal({ open, onClose }: Props) {
+export default function EstimatorModal({ open, onClose, initialAudience }: Props) {
   const [companySize, setCompanySize] = useState(VALID_SIZES[0]);
   const [bottleneck, setBottleneck] = useState(VALID_BOTTLENECKS[0]);
   const [tech, setTech] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Prefill form based on audience selection from hero when modal opens
+  useEffect(() => {
+    if (!open || !initialAudience) return;
+    if (initialAudience === "startups") {
+      setCompanySize(VALID_SIZES[1]);
+      setBottleneck(VALID_BOTTLENECKS[1]);
+      setTech("Notion, Vercel, Stripe");
+    }
+    if (initialAudience === "personal") {
+      setCompanySize(VALID_SIZES[0]);
+      setBottleneck(VALID_BOTTLENECKS[4]);
+      setTech("SaaS CMS, Webflow, Ghost");
+    }
+    if (initialAudience === "saas") {
+      setCompanySize(VALID_SIZES[2]);
+      setBottleneck(VALID_BOTTLENECKS[3]);
+      setTech("Postgres, Supabase, Redis");
+    }
+    if (initialAudience === "business") {
+      setCompanySize(VALID_SIZES[3]);
+      setBottleneck(VALID_BOTTLENECKS[0]);
+      setTech("Salesforce, HubSpot, Airtable");
+    }
+  }, [open, initialAudience]);
 
   if (!open) return null;
 

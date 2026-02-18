@@ -10,6 +10,7 @@ const ROTATING = ["90% manual work", "2–4 hrs/day", "cost & time"];
 export default function Hero() {
   const [wordIndex, setWordIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  const [audience, setAudience] = useState<"startups" | "personal" | "saas" | "business">("startups");
 
   useEffect(() => {
     const id = setInterval(() => setWordIndex((i) => (i + 1) % ROTATING.length), 2800);
@@ -45,9 +46,30 @@ export default function Hero() {
 
             <p className="mt-6 text-muted max-w-xl">We convert manual processes into testable, reliable automation — built by engineers and product designers for scale.</p>
 
-            <div className="mt-8 flex items-center gap-4">
-              <Button href="/book-call" variant="primary" className="px-6 py-3">Book Strategy Call</Button>
-              <Button onClick={() => setOpen(true)} variant="secondary" className="px-5 py-3">Get Instant Estimate</Button>
+            <div className="mt-6 flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-surface rounded-md p-1">
+                <button
+                  onClick={() => setAudience("startups")}
+                  className={`px-3 py-1 rounded text-sm ${audience === "startups" ? "bg-accent text-white" : "text-muted"}`}
+                >Startups</button>
+                <button
+                  onClick={() => setAudience("personal")}
+                  className={`px-3 py-1 rounded text-sm ${audience === "personal" ? "bg-accent text-white" : "text-muted"}`}
+                >Personal</button>
+                <button
+                  onClick={() => setAudience("saas")}
+                  className={`px-3 py-1 rounded text-sm ${audience === "saas" ? "bg-accent text-white" : "text-muted"}`}
+                >SaaS</button>
+                <button
+                  onClick={() => setAudience("business")}
+                  className={`px-3 py-1 rounded text-sm ${audience === "business" ? "bg-accent text-white" : "text-muted"}`}
+                >Business</button>
+              </div>
+
+              <div className="ml-4 flex items-center gap-4">
+                <Button href="/book-call" variant="primary" className="px-6 py-3">Book Strategy Call</Button>
+                <Button onClick={() => setOpen(true)} variant="secondary" className="px-5 py-3">Get Instant Estimate</Button>
+              </div>
             </div>
 
             <div className="mt-8 flex items-center gap-8 text-sm text-muted">
@@ -70,7 +92,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <EstimatorModal open={open} onClose={() => setOpen(false)} />
+      <EstimatorModal open={open} onClose={() => setOpen(false)} initialAudience={audience} />
     </section>
   );
 }
