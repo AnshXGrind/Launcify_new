@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "ci:build": "npm ci --silent && npm run build && npm run type-check"
+    "ci:build": "npm ci --silent && npm run build && npm run type-check",
+    "test": "vitest",
+    "test:ci": "vitest --run"
   },
   "repository": {
     "type": "git",
@@ -40,6 +42,7 @@
     "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
