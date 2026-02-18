@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "ci:build": "npm ci --silent && npm run build && npm run type-check"
   },
   "repository": {
     "type": "git",
