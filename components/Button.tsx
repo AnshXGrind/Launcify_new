@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -7,6 +8,10 @@ interface ButtonProps {
   onClick?: () => void;
   className?: string;
   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  /** Pass true when the action is in-flight (shows as disabled but keeps layout) */
+  loading?: boolean;
+  "aria-label"?: string;
 }
 
 export default function Button({
@@ -16,7 +21,12 @@ export default function Button({
   onClick,
   className = "",
   type = "button",
+  disabled = false,
+  loading = false,
+  "aria-label": ariaLabel,
 }: ButtonProps) {
+  const isDisabled = disabled || loading;
+
   const base =
     "inline-flex items-center justify-center px-6 py-3 rounded-md font-medium text-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
@@ -26,18 +36,35 @@ export default function Button({
       "bg-transparent border border-border text-text hover:border-primary hover:text-primary",
   };
 
-  const classes = `${base} ${variants[variant]} ${className}`;
+  const disabledClasses = isDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "";
 
-  if (href) {
+  const classes = `${base} ${variants[variant]} ${disabledClasses} ${className}`.trim();
+
+  if (href && !isDisabled) {
     return (
-      <a href={href} className={classes}>
+      <Link href={href} className={classes} aria-label={ariaLabel}>
         {children}
-      </a>
+      </Link>
+    );
+  }
+
+  if (href && isDisabled) {
+    return (
+      <span className={classes} aria-disabled="true" role="link" aria-label={ariaLabel}>
+        {children}
+      </span>
     );
   }
 
   return (
-    <button type={type} onClick={onClick} className={classes}>
+    <button
+      type={type}
+      onClick={isDisabled ? undefined : onClick}
+      disabled={isDisabled}
+      aria-disabled={isDisabled}
+      aria-label={ariaLabel}
+      className={classes}
+    >
       {children}
     </button>
   );

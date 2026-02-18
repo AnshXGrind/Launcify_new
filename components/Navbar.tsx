@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Button from "./Button";
 
 const NAV_LINKS = [
@@ -13,8 +14,14 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -33,6 +40,7 @@ export default function Navbar() {
   return (
     <>
       <header
+        id="site-header"
         className={`sticky top-0 z-50 transition-all duration-200 ${
           scrolled || mobileOpen
             ? "backdrop-blur-md bg-background/90 border-b border-border"
@@ -49,16 +57,22 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-muted hover:text-text transition-colors duration-150"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`text-sm transition-colors duration-150 ${
+                    isActive ? "text-text font-medium" : "text-muted hover:text-text"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -75,6 +89,8 @@ export default function Navbar() {
               onClick={() => setMobileOpen((prev) => !prev)}
               className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
             >
               <span
                 className={`block h-px w-5 bg-text transition-all duration-200 origin-center ${
@@ -98,22 +114,39 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden" style={{ top: "64px" }}>
+        <div
+          id="mobile-nav"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          className="fixed inset-x-0 bottom-0 z-40 md:hidden"
+          style={{ top: "var(--navbar-height, 64px)" }}
+        >
           <div
             className="absolute inset-0 bg-background/95 backdrop-blur-md"
             onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
           />
-          <nav className="relative flex flex-col px-6 pt-8 pb-10 gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="text-lg font-medium text-text hover:text-primary transition-colors duration-150"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav
+            className="relative flex flex-col px-6 pt-8 pb-10 gap-6"
+            aria-label="Mobile navigation"
+          >
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`text-lg font-medium transition-colors duration-150 ${
+                    isActive ? "text-primary" : "text-text hover:text-primary"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <div className="pt-4 border-t border-border">
               <Button
                 href="/book-call"

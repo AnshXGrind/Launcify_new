@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 
-const BASE_URL = "https://launcify.vercel.app";
+// Use NEXT_PUBLIC_SITE_URL in preview/staging; fall back to production domain.
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+  "https://launcify.vercel.app";
+
+export { BASE_URL };
 
 export function generateSEO(
   title: string,
@@ -35,43 +40,6 @@ export function generateSEO(
         "max-image-preview": "large",
         "max-snippet": -1,
       },
-    },
-  };
-}
-
-export function generateArticleSEO(
-  title: string,
-  description: string,
-  path: string,
-  publishedDate: string,
-  author: string
-): Metadata {
-  const url = `${BASE_URL}${path}`;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: url,
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-    openGraph: {
-      title,
-      description,
-      type: "article",
-      siteName: "Launcify",
-      url,
-      publishedTime: publishedDate,
-      authors: [author],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      site: "@launcify",
     },
   };
 }

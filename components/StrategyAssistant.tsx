@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Button from "./Button";
 
 // ── Types ──────────────────────────────────────────────
@@ -53,6 +53,7 @@ export default function StrategyAssistant() {
   const [loading, setLoading] = useState(false);
   const [strategy, setStrategy] = useState<StrategyResult | null>(null);
   const [error, setError] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
 
   function toggleTech(tool: string) {
     setTechStack((prev) =>
@@ -61,6 +62,11 @@ export default function StrategyAssistant() {
   }
 
   async function generateStrategy() {
+    // Cancel any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     setError("");
     try {
@@ -68,14 +74,14 @@ export default function StrategyAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, companySize, bottleneck, techStack }),
+        signal: controller.signal,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Request failed");
       setStrategy(data.strategy);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again."
-      );
+      if (err instanceof Error && err.name === "AbortError") return;
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -227,7 +233,7 @@ export default function StrategyAssistant() {
                 <Button
                   variant="primary"
                   onClick={() => companySize && setStep(2)}
-                  className={!companySize ? "opacity-40 cursor-not-allowed" : ""}
+                  disabled={!companySize}
                 >
                   Continue
                 </Button>
@@ -266,7 +272,7 @@ export default function StrategyAssistant() {
                 <Button
                   variant="primary"
                   onClick={() => bottleneck && setStep(3)}
-                  className={!bottleneck ? "opacity-40 cursor-not-allowed" : ""}
+                  disabled={!bottleneck}
                 >
                   Continue
                 </Button>
@@ -355,7 +361,7 @@ export default function StrategyAssistant() {
                   <Button
                     variant="primary"
                     onClick={generateStrategy}
-                    className={loading ? "opacity-60 cursor-not-allowed" : ""}
+                    loading={loading}
                   >
                     {loading ? "Generating..." : "Generate My Strategy"}
                   </Button>

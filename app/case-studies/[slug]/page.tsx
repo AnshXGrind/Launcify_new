@@ -14,7 +14,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const study = getCaseStudy(params.slug);
 
-  if (!study) return {};
+  if (!study) {
+    return {
+      title: "Case Study Not Found | Launcify",
+      description: "The requested case study could not be found.",
+      robots: { index: false, follow: false },
+    };
+  }
 
   return {
     title: `${study.title} | Case Study | Launcify`,
