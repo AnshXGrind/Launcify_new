@@ -3,6 +3,7 @@ import Section from "@/components/Section";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
 import Container from "@/components/Container";
+import MetricCounter from "@/components/MetricCounter";
 
 interface CaseStudyLayoutProps {
   study: CaseStudy;
@@ -41,12 +42,9 @@ export default function CaseStudyLayout({ study }: CaseStudyLayoutProps) {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-border">
             {study.results.map((result) => (
-              <div
-                key={result.metric}
-                className="bg-surface px-8 py-8"
-              >
+              <div key={result.metric} className="bg-surface px-8 py-8">
                 <p className="text-3xl md:text-4xl font-semibold text-text mb-2 leading-none">
-                  {result.value}
+                  <MetricCounter value={result.value} />
                 </p>
                 <p className="text-sm text-muted leading-snug">{result.metric}</p>
               </div>

@@ -1,25 +1,9 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase";
+import { isRateLimited } from "@/lib/rateLimiter";
+import { validateStrategy } from "@/lib/validators";
 
 export const dynamic = "force-dynamic";
-
-// â”€â”€ Simple in-memory rate limiter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// For multi-instance deployments, replace with Redis (Upstash) or Vercel KV.
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX = 5; // requests per window per IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(ip);
-  if (!record || now > record.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  if (record.count >= RATE_LIMIT_MAX) return true;
-  record.count++;
-  return false;
-}
 
 // â”€â”€ Input validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const VALID_SIZES = ["1â€“10 employees", "11â€“50 employees", "51â€“200 employees", "200+ employees"];
@@ -46,20 +30,9 @@ interface StrategyResponse {
   nextStep: string;
 }
 
-function isValidStrategy(obj: unknown): obj is StrategyResponse {
-  if (!obj || typeof obj !== "object") return false;
-  const s = obj as Record<string, unknown>;
-  return (
-    typeof s.diagnosis === "string" &&
-    typeof s.recommendedSystem === "string" &&
-    typeof s.estimatedHoursSaved === "string" &&
-    Array.isArray(s.implementationPlan) &&
-    Array.isArray(s.topTools)
-  );
-}
-
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_TIMEOUT_MS = 25_000;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://launcify.vercel.app";
 
 const SYSTEM_PROMPT = `You are a Senior Enterprise AI Automation Consultant at Launcify.
 
@@ -89,7 +62,7 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ??
     "unknown";
 
-  if (isRateLimited(ip)) {
+  if (await isRateLimited(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please wait a minute before trying again." },
       { status: 429, headers: { "Retry-After": "60" } }
@@ -181,16 +154,16 @@ Generate an automation strategy for this business.`;
       parsed = null;
     }
 
-    const strategy = isValidStrategy(parsed)
-      ? parsed
-      : {
-          diagnosis: "We were unable to generate a strategy at this time.",
-          recommendedSystem: "Please book a strategy call for a personalised assessment.",
-          estimatedHoursSaved: "N/A",
-          implementationPlan: [],
-          topTools: [],
-          nextStep: "Book a free strategy call at launcify.vercel.app/book-call",
-        };
+    const validated = await validateStrategy(parsed);
+    const strategy =
+      validated ?? {
+        diagnosis: "We were unable to generate a strategy at this time.",
+        recommendedSystem: "Please book a strategy call for a personalised assessment.",
+        estimatedHoursSaved: "N/A",
+        implementationPlan: [],
+        topTools: [],
+        nextStep: `Book a free strategy call at ${SITE_URL}/book-call`,
+      };
 
     // â”€â”€ Store lead (non-blocking) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     try {

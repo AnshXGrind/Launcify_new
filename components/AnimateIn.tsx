@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
+import { fadeUpVariant } from "@/components/motion/motion";
 
 type Direction = "up" | "down" | "left" | "right";
 
@@ -28,18 +29,10 @@ export default function AnimateIn({
   className,
 }: AnimateInProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-
   const offset = offsets[direction];
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: offset.x, y: offset.y }}
-      animate={inView ? { opacity: 1, x: 0, y: 0 } : undefined}
-      transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
-      className={className}
-    >
+    <motion.div ref={ref} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeUpVariant} transition={{ duration, delay }} className={className} style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}>
       {children}
     </motion.div>
   );

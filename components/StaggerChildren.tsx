@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
+import { MotionContainer, fadeUpVariant } from "@/components/motion/motion";
 
 type StaggerChildrenProps = {
   children: React.ReactNode;
@@ -9,27 +10,11 @@ type StaggerChildrenProps = {
   stagger?: number;
 };
 
-export function StaggerChildren({
-  children,
-  className,
-  stagger = 0.1,
-}: StaggerChildrenProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-
+export function StaggerChildren({ children, className, stagger = 0.1 }: StaggerChildrenProps) {
   return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: stagger } },
-      }}
-      className={className}
-    >
+    <MotionContainer className={className} stagger={stagger}>
       {children}
-    </motion.div>
+    </MotionContainer>
   );
 }
 
@@ -43,11 +28,7 @@ export function StaggerItem({ children, className }: StaggerItemProps) {
     <motion.div
       variants={{
         hidden: { opacity: 0, y: 20 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] },
-        },
+        visible: { ...fadeUpVariant.visible },
       }}
       className={className}
     >
