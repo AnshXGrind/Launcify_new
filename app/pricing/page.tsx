@@ -101,7 +101,7 @@ export default function PricingPage() {
                 ))}
               </ul>
               <Button
-                href="/about"
+                href="/book-call"
                 variant={tier.highlight ? "primary" : "secondary"}
                 className="w-full"
               >

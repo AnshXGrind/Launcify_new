@@ -1,36 +1,40 @@
 import type { Metadata } from "next";
 
-const BASE_URL = "https://launcify.io";
+const BASE_URL = "https://launcify.vercel.app";
 
 export function generateSEO(
   title: string,
   description: string,
-  path?: string
+  path: string = ""
 ): Metadata {
-  const url = path ? `${BASE_URL}${path}` : BASE_URL;
-
+  const url = `${BASE_URL}${path}`;
   return {
     title,
     description,
-    alternates: {
-      canonical: url,
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
+    metadataBase: new URL(BASE_URL),
+    alternates: { canonical: url },
     openGraph: {
       title,
       description,
-      type: "website",
-      siteName: "Launcify",
       url,
+      siteName: "Launcify",
+      type: "website",
+      locale: "en_US",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      site: "@launcify",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
   };
 }

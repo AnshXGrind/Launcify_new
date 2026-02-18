@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/"],
     },
-    sitemap: "https://launcify.io/sitemap.xml",
+    sitemap: "https://launcify.vercel.app/sitemap.xml",
   };
 }

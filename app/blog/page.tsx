@@ -51,7 +51,7 @@ export default function BlogPage() {
                 <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                   {post.category}
                 </span>
-                <span className="text-xs text-muted">{post.readTime}</span>
+                <span className="text-xs text-muted">{post.date}</span>
               </div>
               <h2 className="text-lg font-semibold text-text mb-3 leading-snug">
                 {post.title}

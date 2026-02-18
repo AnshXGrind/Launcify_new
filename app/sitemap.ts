@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { blogPosts } from "@/lib/blogPosts";
 import { caseStudies } from "@/lib/caseStudies";
 
-const BASE_URL = "https://launcify.io";
+const BASE_URL = "https://launcify.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
-    lastModified: new Date(post.publishedDate),
+    lastModified: new Date(post.date),
     changeFrequency: "monthly",
     priority: 0.6,
   }));

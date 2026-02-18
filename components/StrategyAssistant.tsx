@@ -3,21 +3,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "./Button";
-import Card from "./Card";
 
-// --- Types ---
+// ── Types ──────────────────────────────────────────────
+type Step = 1 | 2 | 3 | 4;
 
-type StrategyResult = {
+interface StrategyResult {
   diagnosis: string;
   recommendedSystem: string;
   estimatedHoursSaved: string;
   implementationPlan: { week: string; task: string }[];
   topTools: string[];
   nextStep: string;
-};
+}
 
-// --- Step Data ---
-
+// ── Option data ────────────────────────────────────────
 const COMPANY_SIZES = [
   "1–10 employees",
   "11–50 employees",
@@ -26,11 +25,11 @@ const COMPANY_SIZES = [
 ];
 
 const BOTTLENECKS = [
-  "Manual data entry & reporting",
+  "Manual data entry and reporting",
   "Slow or broken sales pipeline",
   "Customer support overload",
-  "Disconnected tools & no integrations",
-  "Compliance & documentation overhead",
+  "Disconnected tools with no integrations",
+  "Compliance and documentation overhead",
 ];
 
 const TECH_STACK_OPTIONS = [
@@ -44,12 +43,11 @@ const TECH_STACK_OPTIONS = [
   "Custom / Internal tools",
 ];
 
-const TOTAL_STEPS = 4;
-
 const ease = [0.25, 0.1, 0.25, 1] as const;
 
+// ── Main component ─────────────────────────────────────
 export default function StrategyAssistant() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<Step>(1);
   const [companySize, setCompanySize] = useState("");
   const [bottleneck, setBottleneck] = useState("");
   const [techStack, setTechStack] = useState<string[]>([]);
@@ -59,17 +57,10 @@ export default function StrategyAssistant() {
   const [strategy, setStrategy] = useState<StrategyResult | null>(null);
   const [error, setError] = useState("");
 
-  function toggleTech(tech: string) {
+  function toggleTech(tool: string) {
     setTechStack((prev) =>
-      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
+      prev.includes(tool) ? prev.filter((t) => t !== tool) : [...prev, tool]
     );
-  }
-
-  function canProceed(): boolean {
-    if (step === 1) return companySize !== "";
-    if (step === 2) return bottleneck !== "";
-    if (step === 3) return true; // tech stack is optional
-    return true;
   }
 
   async function generateStrategy() {
@@ -82,30 +73,21 @@ export default function StrategyAssistant() {
         body: JSON.stringify({ name, email, companySize, bottleneck, techStack }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Request failed");
       setStrategy(data.strategy);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Something went wrong. Please try again.";
-      setError(message);
+      setError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  function resetForm() {
-    setStep(1);
-    setCompanySize("");
-    setBottleneck("");
-    setTechStack([]);
-    setName("");
-    setEmail("");
-    setStrategy(null);
-    setError("");
-  }
+  // Progress bar width
+  const progress = `${(step / 4) * 100}%`;
 
-  // --- Result Panel ---
-
+  // ── RESULT VIEW ──────────────────────────────────────
   if (strategy) {
     return (
       <motion.div
@@ -114,125 +96,117 @@ export default function StrategyAssistant() {
         transition={{ duration: 0.5, ease }}
         className="bg-surface border border-border rounded-lg p-8 md:p-12"
       >
-        <div className="mb-10">
-          <h2 className="text-2xl md:text-3xl font-semibold text-text mb-2">
-            Your Automation Strategy
-          </h2>
-          <p className="text-sm text-muted">
-            Generated based on your business profile.
-          </p>
-        </div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+          Your Automation Strategy
+        </p>
+        <h3 className="text-2xl font-semibold text-text mb-10">
+          Generated based on your business profile.
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Diagnosis */}
-          <Card>
+          <div className="bg-background border border-border rounded-lg p-6 md:col-span-2">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-              Diagnosis
+              Operational Diagnosis
             </p>
-            <p className="text-sm text-muted leading-relaxed">
-              {strategy.diagnosis}
-            </p>
-          </Card>
+            <p className="text-muted leading-relaxed">{strategy.diagnosis}</p>
+          </div>
 
           {/* Recommended System */}
-          <Card>
+          <div className="bg-background border border-border rounded-lg p-6">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
               Recommended System
             </p>
-            <p className="text-sm text-muted leading-relaxed">
+            <p className="text-text font-medium leading-relaxed">
               {strategy.recommendedSystem}
             </p>
-          </Card>
-        </div>
+          </div>
 
-        {/* Hours Saved — stat block */}
-        <div className="bg-background border border-border rounded-lg p-8 text-center mb-8">
-          <p className="text-4xl md:text-5xl font-semibold text-text mb-2">
-            {strategy.estimatedHoursSaved}
-          </p>
-          <p className="text-sm text-muted">Estimated hours saved per week</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Implementation Plan */}
-          <Card>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">
-              4-Week Implementation Plan
+          {/* Hours Saved */}
+          <div className="bg-background border border-border rounded-lg p-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+              Estimated Hours Recovered
             </p>
-            <div className="space-y-4">
-              {strategy.implementationPlan?.map((phase) => (
-                <div key={phase.week} className="border-l-2 border-primary pl-4">
-                  <p className="text-xs font-semibold text-primary mb-1">
-                    {phase.week}
-                  </p>
-                  <p className="text-sm text-muted leading-relaxed">
-                    {phase.task}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
+            <p className="text-4xl font-semibold text-text leading-none">
+              {strategy.estimatedHoursSaved}
+            </p>
+          </div>
+        </div>
 
-          {/* Recommended Tools */}
-          <Card>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">
+        {/* Implementation Plan */}
+        <div className="bg-background border border-border rounded-lg p-6 mb-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">
+            4-Week Implementation Plan
+          </p>
+          <div className="space-y-4">
+            {strategy.implementationPlan?.map((item) => (
+              <div key={item.week} className="flex gap-4 items-start">
+                <span className="text-xs font-semibold text-primary shrink-0 mt-0.5 w-14">
+                  {item.week}
+                </span>
+                <p className="text-sm text-muted leading-relaxed">{item.task}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tools */}
+        {strategy.topTools?.length > 0 && (
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
               Recommended Tools
             </p>
             <div className="flex flex-wrap gap-2">
-              {strategy.topTools?.map((tool) => (
+              {strategy.topTools.map((tool) => (
                 <span
                   key={tool}
-                  className="text-sm font-medium px-4 py-2 rounded-md bg-background border border-border text-text"
+                  className="text-sm px-3 py-1 rounded-md bg-background border border-border text-text"
                 >
                   {tool}
                 </span>
               ))}
             </div>
-            {strategy.nextStep && (
-              <p className="text-sm text-muted leading-relaxed mt-6">
-                {strategy.nextStep}
-              </p>
-            )}
-          </Card>
-        </div>
+          </div>
+        )}
 
         {/* CTA */}
-        <div className="border-t border-border pt-8 text-center">
-          <h3 className="text-xl font-semibold text-text mb-3">
-            Ready to implement this system?
-          </h3>
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <Button href="/book-call" variant="primary">
-              Book a Free Strategy Call
-            </Button>
-            <Button variant="secondary" onClick={resetForm}>
-              Start Over
-            </Button>
-          </div>
+        <div className="border-t border-border pt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Button href="/book-call" variant="primary">
+            Book a Free Strategy Call
+          </Button>
+          <button
+            onClick={() => {
+              setStrategy(null);
+              setStep(1);
+              setCompanySize("");
+              setBottleneck("");
+              setTechStack([]);
+              setName("");
+              setEmail("");
+            }}
+            className="text-sm text-muted hover:text-text transition-colors duration-150"
+          >
+            Start over
+          </button>
         </div>
       </motion.div>
     );
   }
 
-  // --- Multi-step Form ---
-
+  // ── FORM VIEW ────────────────────────────────────────
   return (
     <div className="bg-surface border border-border rounded-lg p-8 md:p-12">
-      {/* Progress bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Step {step} of {TOTAL_STEPS}
-          </p>
-        </div>
-        <div className="h-1 w-full bg-border rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-primary rounded-full"
-            initial={false}
-            animate={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
-            transition={{ duration: 0.35, ease }}
-          />
-        </div>
+      {/* Progress */}
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+          Step {step} of 4
+        </p>
+      </div>
+      <div className="w-full h-0.5 bg-border rounded-full mb-10">
+        <div
+          className="h-0.5 bg-primary rounded-full transition-all duration-500"
+          style={{ width: progress }}
+        />
       </div>
 
       <AnimatePresence mode="wait">
@@ -254,15 +228,24 @@ export default function StrategyAssistant() {
                   <button
                     key={size}
                     onClick={() => setCompanySize(size)}
-                    className={`text-left border rounded-md p-4 transition-all duration-200 cursor-pointer ${
+                    className={`text-left px-5 py-4 rounded-md border transition-all duration-150 text-sm font-medium ${
                       companySize === size
                         ? "border-primary bg-primary/5 text-text"
-                        : "border-border text-muted hover:border-primary/40"
+                        : "border-border text-muted hover:border-primary/40 hover:text-text"
                     }`}
                   >
-                    <span className="text-sm font-medium">{size}</span>
+                    {size}
                   </button>
                 ))}
+              </div>
+              <div className="mt-8 flex justify-end">
+                <Button
+                  variant="primary"
+                  onClick={() => companySize && setStep(2)}
+                  className={!companySize ? "opacity-40 cursor-not-allowed" : ""}
+                >
+                  Continue
+                </Button>
               </div>
             </div>
           )}
@@ -278,156 +261,125 @@ export default function StrategyAssistant() {
                   <button
                     key={item}
                     onClick={() => setBottleneck(item)}
-                    className={`text-left border rounded-md p-4 transition-all duration-200 cursor-pointer ${
+                    className={`text-left px-5 py-4 rounded-md border transition-all duration-150 text-sm font-medium ${
                       bottleneck === item
                         ? "border-primary bg-primary/5 text-text"
-                        : "border-border text-muted hover:border-primary/40"
+                        : "border-border text-muted hover:border-primary/40 hover:text-text"
                     }`}
                   >
-                    <span className="text-sm font-medium">{item}</span>
+                    {item}
                   </button>
                 ))}
+              </div>
+              <div className="mt-8 flex justify-between">
+                <button
+                  onClick={() => setStep(1)}
+                  className="text-sm text-muted hover:text-text transition-colors duration-150"
+                >
+                  &larr; Back
+                </button>
+                <Button
+                  variant="primary"
+                  onClick={() => bottleneck && setStep(3)}
+                  className={!bottleneck ? "opacity-40 cursor-not-allowed" : ""}
+                >
+                  Continue
+                </Button>
               </div>
             </div>
           )}
 
-          {/* Step 3 — Tech Stack */}
+          {/* Step 3 — Tech Stack (multi-select) */}
           {step === 3 && (
             <div>
-              <h3 className="text-xl md:text-2xl font-semibold text-text mb-8">
+              <h3 className="text-xl md:text-2xl font-semibold text-text mb-2">
                 Which tools does your team currently use?
               </h3>
+              <p className="text-sm text-muted mb-8">Select all that apply.</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {TECH_STACK_OPTIONS.map((tech) => (
+                {TECH_STACK_OPTIONS.map((tool) => (
                   <button
-                    key={tech}
-                    onClick={() => toggleTech(tech)}
-                    className={`text-left border rounded-md p-4 transition-all duration-200 cursor-pointer ${
-                      techStack.includes(tech)
+                    key={tool}
+                    onClick={() => toggleTech(tool)}
+                    className={`text-left px-4 py-3 rounded-md border transition-all duration-150 text-sm font-medium ${
+                      techStack.includes(tool)
                         ? "border-primary bg-primary/5 text-text"
-                        : "border-border text-muted hover:border-primary/40"
+                        : "border-border text-muted hover:border-primary/40 hover:text-text"
                     }`}
                   >
-                    <span className="text-sm font-medium">{tech}</span>
+                    {tool}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-muted mt-4">
-                Select all that apply. This helps tailor your automation strategy.
-              </p>
+              <div className="mt-8 flex justify-between">
+                <button
+                  onClick={() => setStep(2)}
+                  className="text-sm text-muted hover:text-text transition-colors duration-150"
+                >
+                  &larr; Back
+                </button>
+                <Button variant="primary" onClick={() => setStep(4)}>
+                  Continue
+                </Button>
+              </div>
             </div>
           )}
 
-          {/* Step 4 — Contact */}
+          {/* Step 4 — Contact (optional) */}
           {step === 4 && (
             <div>
-              <h3 className="text-xl md:text-2xl font-semibold text-text mb-8">
-                Where should we send your full strategy report?
+              <h3 className="text-xl md:text-2xl font-semibold text-text mb-2">
+                Where should we send your strategy report?
               </h3>
-              <div className="space-y-4 max-w-md">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-xs font-semibold uppercase tracking-widest text-muted mb-2"
+              <p className="text-sm text-muted mb-8">
+                Optional — skip to see results immediately.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="bg-background border border-border rounded-md px-4 py-3 text-sm text-text placeholder:text-muted focus:outline-none focus:border-primary transition-colors duration-150"
+                />
+                <input
+                  type="email"
+                  placeholder="Work email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-background border border-border rounded-md px-4 py-3 text-sm text-text placeholder:text-muted focus:outline-none focus:border-primary transition-colors duration-150"
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <button
+                  onClick={() => setStep(3)}
+                  className="text-sm text-muted hover:text-text transition-colors duration-150"
+                >
+                  &larr; Back
+                </button>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={generateStrategy}
+                    className="text-sm text-muted hover:text-text transition-colors duration-150"
                   >
-                    Name (optional)
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                    className="w-full bg-background border border-border rounded-md px-4 py-3 text-sm text-text placeholder:text-muted/50 focus:outline-none focus:border-primary transition-colors"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-xs font-semibold uppercase tracking-widest text-muted mb-2"
+                    Skip — show me the strategy
+                  </button>
+                  <Button
+                    variant="primary"
+                    onClick={generateStrategy}
+                    className={loading ? "opacity-60 cursor-not-allowed" : ""}
                   >
-                    Email (optional)
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@company.com"
-                    className="w-full bg-background border border-border rounded-md px-4 py-3 text-sm text-text placeholder:text-muted/50 focus:outline-none focus:border-primary transition-colors"
-                  />
+                    {loading ? "Generating..." : "Generate My Strategy"}
+                  </Button>
                 </div>
               </div>
-              <button
-                onClick={generateStrategy}
-                className="text-xs text-primary hover:underline mt-4 cursor-pointer"
-              >
-                Skip — just show me the strategy
-              </button>
             </div>
           )}
         </motion.div>
       </AnimatePresence>
-
-      {/* Error */}
-      {error && (
-        <p className="text-sm text-red-400 mt-4">{error}</p>
-      )}
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between mt-10 pt-6 border-t border-border">
-        <div>
-          {step > 1 && (
-            <Button variant="secondary" onClick={() => setStep(step - 1)}>
-              Back
-            </Button>
-          )}
-        </div>
-        <div>
-          {step < TOTAL_STEPS ? (
-            <Button
-              variant="primary"
-              onClick={() => setStep(step + 1)}
-              className={!canProceed() ? "opacity-50 pointer-events-none" : ""}
-            >
-              Next
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              onClick={generateStrategy}
-              className={loading ? "opacity-70 pointer-events-none" : ""}
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  Generating...
-                </span>
-              ) : (
-                "Generate Strategy"
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
