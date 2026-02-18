@@ -8,6 +8,7 @@ import AnimateIn from "@/components/AnimateIn";
 import { StaggerChildren, StaggerItem } from "@/components/StaggerChildren";
 import StrategyAssistant from "@/components/StrategyAssistant";
 import Hero from "@/components/Hero";
+import WhoWeBuildFor from "@/components/WhoWeBuildFor";
 import TrustBanner from "@/components/TrustBanner";
 import ServicesSection from "@/components/sections/ServicesSection";
 import ProcessSection from "@/components/sections/ProcessSection";
@@ -77,6 +78,8 @@ export default function HomePage() {
   return (
     <>
           <Hero />
+
+          <WhoWeBuildFor />
 
           <TrustBanner />
 
