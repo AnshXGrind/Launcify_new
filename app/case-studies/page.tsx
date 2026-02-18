@@ -12,7 +12,22 @@ export const metadata: Metadata = generateSEO(
   "/case-studies"
 );
 
-export default function CaseStudiesPage() {
+export default function CaseStudiesPage({ searchParams }: { searchParams?: { audience?: string } }) {
+  const audience = searchParams?.audience;
+  let filtered = caseStudies;
+  if (audience === "startups") {
+    filtered = caseStudies.filter((cs) => {
+      const m = cs.companySize.match(/(\d+)/);
+      const n = m ? parseInt(m[1], 10) : 9999;
+      return n <= 50;
+    });
+  } else if (audience === "saas") {
+    filtered = caseStudies.filter((cs) => /saas/i.test(cs.industry));
+  } else if (audience === "business") {
+    filtered = caseStudies;
+  } else if (audience === "personal") {
+    filtered = [];
+  }
   return (
     <>
       {/* Page Header */}
@@ -36,7 +51,7 @@ export default function CaseStudiesPage() {
       <Section>
         {/* Prepared for future filter bar insertion */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {caseStudies.map((study) => {
+          {(filtered.length ? filtered : caseStudies).map((study) => {
             const highlight = study.results[0];
 
             return (

@@ -37,7 +37,18 @@ const WHO_FOR = [
   "Teams ready to invest in building infrastructure, not just tools",
 ];
 
-export default function BookCallPage() {
+export default function BookCallPage({ searchParams }: { searchParams?: { audience?: string } }) {
+  const audience = searchParams?.audience;
+  const audienceLabel =
+    audience === "startups"
+      ? "Startups"
+      : audience === "personal"
+      ? "Personal Brands"
+      : audience === "saas"
+      ? "SaaS Founders"
+      : audience === "business"
+      ? "Growing Businesses"
+      : null;
   return (
     <>
       {/* Hero */}
@@ -55,6 +66,11 @@ export default function BookCallPage() {
             outline exactly what a Launcify engagement would look like for your
             specific situation.
           </p>
+          {audienceLabel && (
+            <p className="mt-4 text-sm text-primary">
+              Prefilled for: <strong>{audienceLabel}</strong>
+            </p>
+          )}
         </div>
       </section>
 
@@ -117,7 +133,16 @@ export default function BookCallPage() {
             </div>
 
             <div className="text-center">
-              <Button href="mailto:hello@launcify.io" variant="primary">
+              <Button
+                href={`mailto:hello@launcify.io?subject=${encodeURIComponent(
+                  `Strategy call — ${audienceLabel ?? "General"}`
+                )}&body=${encodeURIComponent(
+                  audienceLabel
+                    ? `I'm booking a strategy call as a ${audienceLabel}. Please share available times.`
+                    : "I'm interested in a strategy call. Please share available times."
+                )}`}
+                variant="primary"
+              >
                 Email Us to Schedule
               </Button>
               <p className="text-xs text-muted mt-4">

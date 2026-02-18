@@ -67,7 +67,7 @@ export default function Hero() {
               </div>
 
               <div className="ml-4 flex items-center gap-4">
-                <Button href="/book-call" variant="primary" className="px-6 py-3">Book Strategy Call</Button>
+                <Button href={`/book-call?audience=${audience}`} variant="primary" className="px-6 py-3">Book Strategy Call</Button>
                 <Button onClick={() => setOpen(true)} variant="secondary" className="px-5 py-3">Get Instant Estimate</Button>
               </div>
             </div>
