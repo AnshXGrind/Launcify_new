@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import Button from "./Button";
 
 // ── Types ──────────────────────────────────────────────
@@ -42,8 +41,6 @@ const TECH_STACK_OPTIONS = [
   "Google Workspace",
   "Custom / Internal tools",
 ];
-
-const ease = [0.25, 0.1, 0.25, 1] as const;
 
 // ── Main component ─────────────────────────────────────
 export default function StrategyAssistant() {
@@ -90,12 +87,7 @@ export default function StrategyAssistant() {
   // ── RESULT VIEW ──────────────────────────────────────
   if (strategy) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease }}
-        className="bg-surface border border-border rounded-lg p-8 md:p-12"
-      >
+      <div className="bg-surface border border-border rounded-lg p-8 md:p-12">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
           Your Automation Strategy
         </p>
@@ -189,7 +181,7 @@ export default function StrategyAssistant() {
             Start over
           </button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -209,14 +201,7 @@ export default function StrategyAssistant() {
         />
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={step}
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -12 }}
-          transition={{ duration: 0.25, ease }}
-        >
+      <div>
           {/* Step 1 — Company Size */}
           {step === 1 && (
             <div>
@@ -378,8 +363,7 @@ export default function StrategyAssistant() {
               </div>
             </div>
           )}
-        </motion.div>
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

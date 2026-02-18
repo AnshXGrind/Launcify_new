@@ -202,15 +202,14 @@ export default function HomePage() {
         <AnimateIn direction="up">
           <div className="mb-10 text-center max-w-2xl mx-auto">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-              Free AI Strategy Tool
+              Free Automation Audit
             </p>
             <h2 className="text-3xl md:text-4xl font-semibold text-text mb-4">
-              Get your automation strategy in 60 seconds.
+              Get your custom automation strategy in 2 minutes.
             </h2>
             <p className="text-muted">
-              Answer 4 quick questions about your business. Our AI will generate
-              a custom automation strategy — including estimated hours saved and
-              a recommended implementation plan.
+              Answer four questions about your business. Our system generates a
+              tailored automation plan specific to your operations and tech stack.
             </p>
           </div>
         </AnimateIn>
