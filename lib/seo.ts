@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/dist/shared/lib/constants";
 
 export function generateSEO(title: string, description: string): Metadata {
   return {
