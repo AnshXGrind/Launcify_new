@@ -24,6 +24,14 @@ export default function CaseStudiesPage({ searchParams }: { searchParams?: { aud
       return true;
     });
   }
+
+  const AUDIENCES: { key: string; label: string }[] = [
+    { key: "", label: "All" },
+    { key: "startups", label: "Startups" },
+    { key: "personal", label: "Personal Brands" },
+    { key: "saas", label: "SaaS" },
+    { key: "business", label: "Businesses" },
+  ];
   return (
     <>
       {/* Page Header */}
@@ -45,7 +53,24 @@ export default function CaseStudiesPage({ searchParams }: { searchParams?: { aud
 
       {/* Case Study Grid */}
       <Section>
-        {/* Prepared for future filter bar insertion */}
+        <div className="max-w-6xl mx-auto px-6 mb-8">
+          <div className="flex flex-wrap gap-3">
+            {AUDIENCES.map((a) => (
+              <Link
+                key={a.key}
+                href={`/case-studies${a.key ? `?audience=${a.key}` : ""}`}
+                className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
+                  (a.key === audience || (a.key === "" && !audience))
+                    ? "bg-accent text-white"
+                    : "bg-surface text-muted"
+                }`}
+              >
+                {a.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {(filtered.length ? filtered : caseStudies).map((study) => {
             const highlight = study.results[0];
@@ -70,6 +95,17 @@ export default function CaseStudiesPage({ searchParams }: { searchParams?: { aud
                   <h2 className="text-base font-semibold text-text leading-snug mb-4 flex-1">
                     {study.title}
                   </h2>
+
+                  {/* Audience tags */}
+                  {Array.isArray(study.audiences) && study.audiences.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {study.audiences.map((t) => (
+                        <span key={t} className="text-xs px-2 py-0.5 rounded-full bg-surface text-muted">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Highlight metric */}
                   <div className="pt-4 border-t border-border mt-auto">
