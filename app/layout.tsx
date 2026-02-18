@@ -14,14 +14,40 @@ export const metadata: Metadata = {
   title: "AI Automation Consulting | Launcify",
   description:
     "Custom AI automation systems that eliminate manual work and save businesses 20+ hours per week.",
+  metadataBase: new URL("https://launcify.io"),
+  alternates: {
+    canonical: "https://launcify.io",
+  },
   openGraph: {
     title: "Launcify",
     description: "Enterprise AI automation consulting for scaling teams.",
-    url: "https://launcify.vercel.app",
+    url: "https://launcify.io",
     siteName: "Launcify",
     type: "website",
   },
-  metadataBase: new URL("https://launcify.vercel.app"),
+  twitter: {
+    card: "summary_large_image",
+    site: "@launcify",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Launcify",
+  url: "https://launcify.io",
+  description:
+    "Enterprise AI automation consulting firm helping scaling businesses eliminate manual operations.",
+  sameAs: ["https://twitter.com/launcify"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "sales",
+    url: "https://launcify.io/book-call",
+  },
 };
 
 export default function RootLayout({
@@ -32,6 +58,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-background text-text antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <Navbar />
         <main>{children}</main>
         <Footer />

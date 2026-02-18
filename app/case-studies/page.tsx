@@ -8,7 +8,8 @@ import Button from "@/components/Button";
 
 export const metadata: Metadata = generateSEO(
   "Case Studies | Launcify",
-  "Real automation engagements with documented results — hours recovered, processes eliminated, and operations scaled without added headcount."
+  "Real automation engagements with documented results — hours recovered, processes eliminated, and operations scaled without added headcount.",
+  "/case-studies"
 );
 
 export default function CaseStudiesPage() {

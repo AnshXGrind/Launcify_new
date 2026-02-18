@@ -5,7 +5,8 @@ import Button from "@/components/Button";
 
 export const metadata: Metadata = generateSEO(
   "About Launcify | Enterprise AI Automation Consulting",
-  "Launcify is an enterprise AI automation consulting firm helping scaling businesses eliminate manual operations and build systems that compound."
+  "Launcify is an enterprise AI automation consulting firm helping scaling businesses eliminate manual operations and build systems that compound.",
+  "/about"
 );
 
 const VALUES = [

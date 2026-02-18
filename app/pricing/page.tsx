@@ -6,7 +6,8 @@ import Button from "@/components/Button";
 
 export const metadata: Metadata = generateSEO(
   "Pricing | Launcify",
-  "Transparent engagement options for enterprise AI automation. Fixed-scope projects and ongoing retainers available."
+  "Transparent engagement options for enterprise AI automation. Fixed-scope projects and ongoing retainers available.",
+  "/pricing"
 );
 
 const TIERS = [
