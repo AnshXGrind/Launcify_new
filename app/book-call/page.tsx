@@ -49,6 +49,12 @@ export default function BookCallPage({ searchParams }: { searchParams?: { audien
       : audience === "business"
       ? "Growing Businesses"
       : null;
+  const BOOKING_URL = process.env.NEXT_PUBLIC_BOOKING_URL;
+  const bookingHref = BOOKING_URL
+    ? `${BOOKING_URL}${BOOKING_URL.includes("?") ? "&" : "?"}audience=${encodeURIComponent(
+        audience ?? ""
+      )}`
+    : undefined;
   return (
     <>
       {/* Hero */}
@@ -133,18 +139,24 @@ export default function BookCallPage({ searchParams }: { searchParams?: { audien
             </div>
 
             <div className="text-center">
-              <Button
-                href={`mailto:hello@launcify.io?subject=${encodeURIComponent(
-                  `Strategy call — ${audienceLabel ?? "General"}`
-                )}&body=${encodeURIComponent(
-                  audienceLabel
-                    ? `I'm booking a strategy call as a ${audienceLabel}. Please share available times.`
-                    : "I'm interested in a strategy call. Please share available times."
-                )}`}
-                variant="primary"
-              >
-                Email Us to Schedule
-              </Button>
+              {bookingHref ? (
+                <Button href={bookingHref} variant="primary">
+                  Book via Calendar
+                </Button>
+              ) : (
+                <Button
+                  href={`mailto:hello@launcify.io?subject=${encodeURIComponent(
+                    `Strategy call — ${audienceLabel ?? "General"}`
+                  )}&body=${encodeURIComponent(
+                    audienceLabel
+                      ? `I'm booking a strategy call as a ${audienceLabel}. Please share available times.`
+                      : "I'm interested in a strategy call. Please share available times."
+                  )}`}
+                  variant="primary"
+                >
+                  Email Us to Schedule
+                </Button>
+              )}
               <p className="text-xs text-muted mt-4">
                 Or email us directly at{" "}
                 <a

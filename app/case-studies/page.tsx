@@ -15,18 +15,14 @@ export const metadata: Metadata = generateSEO(
 export default function CaseStudiesPage({ searchParams }: { searchParams?: { audience?: string } }) {
   const audience = searchParams?.audience;
   let filtered = caseStudies;
-  if (audience === "startups") {
+  if (audience) {
     filtered = caseStudies.filter((cs) => {
-      const m = cs.companySize.match(/(\d+)/);
-      const n = m ? parseInt(m[1], 10) : 9999;
-      return n <= 50;
+      // prefer explicit audiences tag; fallback to include-all if missing
+      if (Array.isArray(cs.audiences) && cs.audiences.length) {
+        return cs.audiences.includes(audience);
+      }
+      return true;
     });
-  } else if (audience === "saas") {
-    filtered = caseStudies.filter((cs) => /saas/i.test(cs.industry));
-  } else if (audience === "business") {
-    filtered = caseStudies;
-  } else if (audience === "personal") {
-    filtered = [];
   }
   return (
     <>

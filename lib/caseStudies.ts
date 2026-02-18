@@ -16,6 +16,7 @@ export type CaseStudy = {
     author: string;
     role: string;
   };
+  audiences?: string[];
 };
 
 export const caseStudies: CaseStudy[] = [
@@ -35,6 +36,7 @@ export const caseStudies: CaseStudy[] = [
       { metric: "Time to Active Client", value: "48 hrs" },
     ],
     techStack: ["Next.js", "Supabase", "n8n", "Stripe API"],
+    audiences: ["startups", "saas", "business"],
     timeline: "4 Weeks",
     testimonial: {
       quote:
@@ -59,6 +61,7 @@ export const caseStudies: CaseStudy[] = [
       { metric: "Error Rate Post-Automation", value: "0%" },
     ],
     techStack: ["n8n", "OpenAI API", "Google Sheets API", "Slack API"],
+    audiences: ["saas", "business"],
     timeline: "3 Weeks",
     testimonial: {
       quote:
@@ -83,6 +86,7 @@ export const caseStudies: CaseStudy[] = [
       { metric: "Ops Team Hours Recovered", value: "22 hrs/week" },
     ],
     techStack: ["Zapier", "Shopify API", "Airtable", "Gmail API"],
+    audiences: ["startups", "business"],
     timeline: "2 Weeks",
   },
 ];
